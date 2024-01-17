@@ -4,6 +4,7 @@ import { TextInput } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import { router } from 'expo-router';
+import config from '../../../config';
 
 
 const ReceiverDetails = () => {
@@ -20,7 +21,7 @@ const ReceiverDetails = () => {
       await AsyncStorage.setItem('receiverAddress',  receiverAddress);
       await AsyncStorage.setItem('receiverLat',  String(receiverLat));
       await AsyncStorage.setItem('receiverLng',  String(receiverLng));
-      router.replace('/(tabs)/(home)/shipment');
+      router.push('/(tabs)/(home)/shipment');
     } catch (error) {
       console.log(error);
     }
@@ -44,7 +45,7 @@ const ReceiverDetails = () => {
             }}
             fetchDetails={true}
             query={{
-              key: 'AIzaSyBPZgfibTdGNRMEr7J859MCPAdbZy3zBqo',
+              key: config.GOOGLE_MAP_API,
               language: 'en',
               components: 'country:np',
             }}

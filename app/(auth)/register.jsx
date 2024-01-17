@@ -6,12 +6,14 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  ScrollView,
 } from 'react-native';
 import images from '../../constants/images';
 import { Link, router } from 'expo-router';
 
 const RegisterScreen = () => {
   return (
+    <ScrollView showsVerticalScrollIndicator={false}>
     <View style={styles.container}>
        <Image source={images.LOGO} style={styles.logo} resizeMode='contain' />
       <Text style={styles.title}>Parcel Gig</Text>
@@ -47,6 +49,7 @@ const RegisterScreen = () => {
       </Text>
       </Link>
     </View>
+    </ScrollView>
   );
 };
 

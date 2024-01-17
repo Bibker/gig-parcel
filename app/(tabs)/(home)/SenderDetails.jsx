@@ -4,6 +4,7 @@ import { TextInput } from 'react-native';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
+import config from '../../../config';
 
 const SenderDetails = () => {
 
@@ -44,7 +45,7 @@ const SenderDetails = () => {
             }}
             fetchDetails={true}
             query={{
-              key: 'AIzaSyBPZgfibTdGNRMEr7J859MCPAdbZy3zBqo',
+              key: config.GOOGLE_MAP_API,
               language: 'en',
               components: 'country:np',
             }}

@@ -1,8 +1,11 @@
+const PLATFORM = config.PLATFORM;
+
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image, SafeAreaView, ScrollView } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image, SafeAreaView, ScrollView, Alert } from 'react-native';
 import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import SelectDropdown from 'react-native-select-dropdown';
+import config from '../../../config';
 
 const Shipment = () => {
   const [trackingNumber, setTrackingNumber] = useState('');
@@ -23,13 +26,11 @@ const Shipment = () => {
       setSenderLng(await AsyncStorage.getItem('senderLng'));
       setReceiverLat(await AsyncStorage.getItem('receiverLat'));
       setReceiverLng(await AsyncStorage.getItem('receiverLng'));
-      if (senderLat && receiverLat)
-        calculateMeasurements();
-
     } catch (error) {
 
     }
   }
+  fetchSenderReceiverDetails();
 
   const calculateMeasurements = async () => {
     try {
@@ -37,9 +38,13 @@ const Shipment = () => {
       const destination = `${receiverLat},${receiverLng}`;
       console.log(origin);
       console.log(destination);
-      const apiKey = 'AIzaSyBPZgfibTdGNRMEr7J859MCPAdbZy3zBqo';
+      const apiKey = config.GOOGLE_MAP_API;
+      let proxy = '';
+      if (PLATFORM == 'web') {
+        proxy = "https://cors-anywhere.herokuapp.com/";
+      }
       const response = await fetch(
-        `https://maps.googleapis.com/maps/api/directions/json?origin=${origin}&destination=${destination}&key=${apiKey}`
+        `${proxy}https://maps.googleapis.com/maps/api/directions/json?origin=${origin}&destination=${destination}&key=${apiKey}`
       );
 
       const data = await response.json();
@@ -58,9 +63,10 @@ const Shipment = () => {
 
 
   }
-  useEffect(() => {
-    fetchSenderReceiverDetails();
 
+  useEffect(() => {
+    if (senderLat && receiverLat)
+      calculateMeasurements();
   }, [senderAddress, receiverAddress, senderLat, senderLng, receiverLat, receiverLng])
 
 
@@ -96,7 +102,7 @@ const Shipment = () => {
               <TextInput
                 onPointerDown={() => { router.push('/(tabs)/(home)/SenderDetails') }}
                 onPressIn={() => { router.push('/(tabs)/(home)/SenderDetails') }}
-                // editable={false}
+                editable={false}
                 style={styles.locationInput}
                 placeholder="Pickup Location"
                 value={senderAddress}
@@ -188,15 +194,15 @@ const Shipment = () => {
             </View>
             <View style={styles.amount}>
               <Text style={styles.amountText}>
-                {parseFloat(estimatedDistance) == 0?('Rs. 0')
-                :(parseFloat(estimatedDistance) > 0 && parseFloat(estimatedDistance) < 5) ? ('Rs. 100')
-                  : (parseFloat(estimatedDistance) > 5 && parseFloat(estimatedDistance) < 10) ? ('Rs 150')
-                    : (parseFloat(estimatedDistance) > 10 && parseFloat(estimatedDistance) < 20) ? ('Rs 250')
-                    : (parseFloat(estimatedDistance) > 20 && parseFloat(estimatedDistance) < 30) ? ('Rs 300')
-                    : (parseFloat(estimatedDistance) > 30 && parseFloat(estimatedDistance) < 40) ? ('Rs 350')
-                    : (parseFloat(estimatedDistance) > 40 && parseFloat(estimatedDistance) < 50) ? ('Rs 400')
-                    : (parseFloat(estimatedDistance) > 50 && parseFloat(estimatedDistance) < 100) ? ('Rs 500')
-                      : ('Rs. 800')}
+                {parseFloat(estimatedDistance) == 0 ? ('Rs. 0')
+                  : (parseFloat(estimatedDistance) > 0 && parseFloat(estimatedDistance) < 5) ? ('Rs. 100')
+                    : (parseFloat(estimatedDistance) > 5 && parseFloat(estimatedDistance) < 10) ? ('Rs 150')
+                      : (parseFloat(estimatedDistance) > 10 && parseFloat(estimatedDistance) < 20) ? ('Rs 250')
+                        : (parseFloat(estimatedDistance) > 20 && parseFloat(estimatedDistance) < 30) ? ('Rs 300')
+                          : (parseFloat(estimatedDistance) > 30 && parseFloat(estimatedDistance) < 40) ? ('Rs 350')
+                            : (parseFloat(estimatedDistance) > 40 && parseFloat(estimatedDistance) < 50) ? ('Rs 400')
+                              : (parseFloat(estimatedDistance) > 50 && parseFloat(estimatedDistance) < 100) ? ('Rs 500')
+                                : ('Rs. 800')}
               </Text>
             </View>
             <View>

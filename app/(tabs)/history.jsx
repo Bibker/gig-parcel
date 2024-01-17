@@ -87,9 +87,9 @@ const History = () => {
   ]
 
   return (
-    <SafeAreaView >
- 
-      <ScrollView showsVerticalScrollIndicator={false}>
+
+    <ScrollView showsVerticalScrollIndicator={false}>
+      <SafeAreaView >
         <View>
           {items.map((item) => (
             <PackageTracker
@@ -104,14 +104,14 @@ const History = () => {
           ))}
 
         </View>
-      </ScrollView>
-    </SafeAreaView>
+      </SafeAreaView>
+    </ScrollView>
   )
 }
 
 const styles = StyleSheet.create({
   historyText: {
-    fontSize:22
+    fontSize: 22
 
   }
 })
