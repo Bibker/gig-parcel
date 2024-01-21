@@ -1,8 +1,11 @@
-import { View, Text, Image, StyleSheet, ScrollView, SafeAreaView } from 'react-native'
+import { View, Text, Image, StyleSheet, ScrollView, SafeAreaView, Alert } from 'react-native'
 import StepIndicator from 'react-native-step-indicator';
 import { images } from '../../constants';
 import { useEffect, useState } from 'react';
 import GiggerTrackingDetails from '../components/GiggerTrackingDetails';
+import { RootSiblingParent } from 'react-native-root-siblings';
+import showToast from '../components/Toast';
+
 
 const tracking = () => {
   const labels = ["Request Sent", "Confirmed", "Picked", "Halfway", "Delivered"];
@@ -17,7 +20,7 @@ const tracking = () => {
   useEffect(() => {
     const data = [
       {
-        trackingTime: '17 Jan, 2023 02:29PM',
+        trackingTime: '17 Jan, 2023 02:40PM',
         status: 'Delivered'
       },
       {
@@ -40,13 +43,18 @@ const tracking = () => {
     setTrackingStatus(data);
   }, []);
   return (
+    <RootSiblingParent>
+      <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.trackingContainer}>
           <View>
-          {trackingStatus.length == 5 ?
-            <Image style={styles.trackingImage} source={images.DELIVERED} />
-            :
-            <Image style={styles.trackingImage} source={images.SEARCHING} />
-          }
+            {trackingStatus.length == 5 ?
+              <>
+                <Image style={styles.trackingImage} source={images.DELIVERED} />
+                {showToast("Your Order is delivered", "success")}
+              </>
+              :
+              <Image style={styles.trackingImage} source={images.SEARCHING} />
+            }
           </View>
           <View style={styles.trackingStatusStepsContainer}>
             <StepIndicator
@@ -55,7 +63,7 @@ const tracking = () => {
               labels={labels}
             />
           </View>
-    <ScrollView showsVerticalScrollIndicator={false}>
+
           <View style={styles.trackingStatusUpdateContainer}>
             {trackingStatus.map((data, index) =>
             (
@@ -67,10 +75,9 @@ const tracking = () => {
             )}
           </View>
           <GiggerTrackingDetails gigger={gigger} />
-    </ScrollView>
-
         </View>
-
+      </ScrollView>
+    </RootSiblingParent>
   )
 }
 

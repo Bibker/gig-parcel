@@ -4,19 +4,36 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image, SafeAreaView, ScrollView, Alert } from 'react-native';
 import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import SelectDropdown from 'react-native-select-dropdown';
 import config from '../../../config';
+import { RootSiblingParent } from 'react-native-root-siblings';
+import showToast from '../../components/Toast';
+import SelectBox from '../../components/SelectBox';
 
 const Shipment = () => {
-  const [trackingNumber, setTrackingNumber] = useState('');
   const [senderAddress, setSenderAddress] = useState('');
   const [receiverAddress, setReceiverAddress] = useState('');
-  const [estimatedDistance, setEstimatedDistance] = useState(0);
-  const [estimatedTime, setEstimatedTime] = useState(0);
   const [senderLat, setSenderLat] = useState(0);
   const [senderLng, setSenderLng] = useState(0);
   const [receiverLat, setReceiverLat] = useState(0);
   const [receiverLng, setReceiverLng] = useState(0);
+  const [packageType, setPackageType] = useState('');
+  const [packageWeight, setPackageWeight] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('');
+  const [estimatedDistance, setEstimatedDistance] = useState(0);
+  const [estimatedTime, setEstimatedTime] = useState(0);
+
+
+
+  useEffect(() => {
+    if (senderLat && receiverLat)
+      calculateMeasurements();
+  }, [senderAddress, receiverAddress, senderLat, senderLng, receiverLat, receiverLng])
+
+  useEffect(() => {
+    fetchSenderReceiverDetails();
+  }, [])
+
+
 
   const fetchSenderReceiverDetails = async () => {
     try {
@@ -30,7 +47,6 @@ const Shipment = () => {
 
     }
   }
-  fetchSenderReceiverDetails();
 
   const calculateMeasurements = async () => {
     try {
@@ -46,9 +62,7 @@ const Shipment = () => {
       const response = await fetch(
         `${proxy}https://maps.googleapis.com/maps/api/directions/json?origin=${origin}&destination=${destination}&key=${apiKey}`
       );
-
       const data = await response.json();
-
       // Extracting duration and distance from the API response
       const route = data.routes[0];
       const leg = route && route.legs[0];
@@ -60,160 +74,115 @@ const Shipment = () => {
     } catch (error) {
       console.error('Error fetching directions:', error);
     }
-
-
   }
-
-  useEffect(() => {
-    if (senderLat && receiverLat)
-      calculateMeasurements();
-  }, [senderAddress, receiverAddress, senderLat, senderLng, receiverLat, receiverLng])
-
-
-  const handleTrackPackage = () => {
-    // Implement tracking logic here using the tracking number
-    console.log('Tracking package:', trackingNumber);
+  const handleFindGiggers = () => {
+    // console.warn(packageType, packageWeight, paymentMethod);
+    if (
+      // !senderAddress ||
+      // !receiverAddress ||
+      // !estimatedDistance ||
+      // !estimatedTime ||
+      // !senderLat ||
+      // !senderLng ||
+      // !receiverLat ||
+      // !receiverLng ||
+      !packageType ||
+      !packageWeight ||
+      !paymentMethod
+    ) {
+      showToast("Please enter all the Fields", "failed")
+      return;
+    }
+    router.push('/(tabs)/(home)/GigMatch')
   };
-
-
-  const items = [
-    {
-      "trackingNumber": "56789",
-      "status": "Shipped",
-      "date": "2023-12-18",
-      "from": "Chitwan",
-      "to": "Kathmandu",
-      "paymentMethod": "Prepaid"
-    },
-  ]
-
-
   return (
-    <SafeAreaView>
-      <ScrollView showsVerticalScrollIndicator={false}>
-
-
-        <View style={styles.container}>
-          {/* Header with updated sections */}
-          <View style={styles.header}>
-            <Text style={styles.headerText}>Enter your locations</Text>
-            {/* Tracking input and button with Ionicons */}
-            <View style={styles.locationSection}>
-              <TextInput
-                onPointerDown={() => { router.push('/(tabs)/(home)/SenderDetails') }}
-                onPressIn={() => { router.push('/(tabs)/(home)/SenderDetails') }}
-                editable={false}
-                style={styles.locationInput}
-                placeholder="Pickup Location"
-                value={senderAddress}
-              />
+    <RootSiblingParent>
+      <SafeAreaView>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <View style={styles.container}>
+            <View style={styles.header}>
+              <Text style={styles.headerText}>Enter your locations</Text>
+              <View style={styles.locationSection}>
+                <TextInput
+                  onPointerDown={() => { router.push('/(tabs)/(home)/SenderDetails') }}
+                  onPressIn={() => { router.push('/(tabs)/(home)/SenderDetails') }}
+                  editable={false}
+                  style={styles.locationInput}
+                  placeholder="Pickup Location"
+                  value={senderAddress}
+                />
+              </View>
+              <View style={styles.locationSection}>
+                <TextInput
+                  onPointerDown={() => { router.push('/(tabs)/(home)/ReceiverDetails') }}
+                  onPressIn={() => { router.push('/(tabs)/(home)/ReceiverDetails') }}
+                  editable={false}
+                  style={styles.locationInput}
+                  placeholder="Destination Location"
+                  value={receiverAddress}
+                />
+              </View>
             </View>
-            <View style={styles.locationSection}>
-              <TextInput
-                onPointerDown={() => { router.push('/(tabs)/(home)/ReceiverDetails') }}
-                onPressIn={() => { router.push('/(tabs)/(home)/ReceiverDetails') }}
-                editable={false}
-                style={styles.locationInput}
-                placeholder="Destination Location"
-                value={receiverAddress}
-              />
+            <View style={styles.packageDescriptionSection}>
+              <View style={styles.packageType}>
+                <Text style={styles.packageTypeTitle}>Package Type</Text>
+                <SelectBox
+                  data={["Document", "Jewellery", "Clothes", "Food", "Others"]}
+                  setSelected={(data) => {
+                    setPackageType(data)
+                  }} />
+              </View>
+              <View style={styles.packageWeight}>
+                <Text style={styles.packageTypeTitle}>Package Weight</Text>
+                <SelectBox
+                  data={["0.1 to 0.5 Kg", "0.5 to 1 Kg", "1 to 3 Kg", "> 3 Kg"]}
+                  setSelected={(data) => {
+                    setPackageWeight(data)
+                  }} />
+              </View>
             </View>
-          </View>
-
-          <View style={styles.packageDescriptionSection}>
-            <View style={styles.packageType}>
-              <Text style={styles.packageTypeTitle}>Package Type</Text>
-              <SelectDropdown
-                buttonStyle={{
-                  borderRadius: 5,
-                  alignSelf: 'center',
-                  width: '80%',
-                  height: 40,
-                  backgroundColor: '#d6654f'
-                }}
-                buttonTextStyle={{
-                  fontSize: 14,
-                  fontWeight: 'bold',
-                  color: '#fff'
-                }}
-                data={["Document", "Jewellery", "Clothes", "Food", "Others"]}
-                defaultButtonText='Select Type'
-              />
-            </View>
-            <View style={styles.packageWeight}>
-              <Text style={styles.packageTypeTitle}>Package Weight</Text>
-              <SelectDropdown
-                buttonStyle={{
-                  borderRadius: 5,
-                  alignSelf: 'center',
-                  width: '80%',
-                  height: 40,
-                  backgroundColor: '#d6654f'
-                }}
-                buttonTextStyle={{
-                  fontSize: 14,
-                  fontWeight: 'bold',
-                  color: '#fff'
-                }}
-                data={["0.1 to 0.5 Kg", "0.5 to 1 Kg", "1 to 3 Kg", "> 3 Kg"]}
-                defaultButtonText='Select Weight'
-              />
-            </View>
-          </View>
-
-          {/* Recent History Section (unchanged) */}
-          <View style={styles.paymentSection}>
-            <Text style={styles.paymentSectionTitle}>Charge Summary</Text>
-            <View style={styles.deliveryType}>
-              <Text style={styles.deliveryTypeTitle}>Payment Method</Text>
-              <SelectDropdown
-                buttonStyle={{
-                  borderRadius: 5,
-                  alignSelf: 'center',
-                  width: '40%',
-                  height: 40,
-                  backgroundColor: '#d6654f',
-                  marginTop: 0,
-                }}
-                buttonTextStyle={{
-                  fontSize: 14,
-                  fontWeight: 'bold',
-                  color: '#fff'
-                }}
-                data={["COD"]}
-                defaultButtonText='Select Payment'
-              />
-            </View>
-            <View style={styles.measurement}>
-              <Text style={styles.deliveryTypeTitle}>Distance</Text>
-              <Text style={styles.measurementText}>{estimatedDistance}</Text>
-            </View>
-            <View style={styles.measurement}>
-              <Text style={styles.deliveryTypeTitle}>Est. Delivery Time:</Text>
-              <Text style={styles.measurementText}>{estimatedTime}</Text>
-            </View>
-            <View style={styles.amount}>
-              <Text style={styles.amountText}>
-                {parseFloat(estimatedDistance) == 0 ? ('Rs. 0')
-                  : (parseFloat(estimatedDistance) > 0 && parseFloat(estimatedDistance) < 5) ? ('Rs. 100')
-                    : (parseFloat(estimatedDistance) > 5 && parseFloat(estimatedDistance) < 10) ? ('Rs 150')
-                      : (parseFloat(estimatedDistance) > 10 && parseFloat(estimatedDistance) < 20) ? ('Rs 250')
-                        : (parseFloat(estimatedDistance) > 20 && parseFloat(estimatedDistance) < 30) ? ('Rs 300')
-                          : (parseFloat(estimatedDistance) > 30 && parseFloat(estimatedDistance) < 40) ? ('Rs 350')
-                            : (parseFloat(estimatedDistance) > 40 && parseFloat(estimatedDistance) < 50) ? ('Rs 400')
-                              : (parseFloat(estimatedDistance) > 50 && parseFloat(estimatedDistance) < 100) ? ('Rs 500')
-                                : ('Rs. 800')}
-              </Text>
-            </View>
-            <View>
-              <TouchableOpacity onPress={() => { router.push('/(tabs)/(home)/GigMatch') }} style={styles.confirmButton}>
-                <Text style={styles.confirmButtonText}>Find Giggers</Text>
-              </TouchableOpacity>
+            <View style={styles.paymentSection}>
+              <Text style={styles.paymentSectionTitle}>Charge Summary</Text>
+              <View style={styles.deliveryType}>
+                <Text style={styles.deliveryTypeTitle}>Payment Method</Text>
+                <SelectBox
+                  data={["COD"]}
+                  buttonWidth='40%'
+                  setSelected={(data) => {
+                    setPaymentMethod(data)
+                  }} />
+              </View>
+              <View style={styles.measurement}>
+                <Text style={styles.deliveryTypeTitle}>Distance</Text>
+                <Text style={styles.measurementText}>{estimatedDistance}</Text>
+              </View>
+              <View style={styles.measurement}>
+                <Text style={styles.deliveryTypeTitle}>Est. Delivery Time:</Text>
+                <Text style={styles.measurementText}>{estimatedTime}</Text>
+              </View>
+              <View style={styles.amount}>
+                <Text style={styles.amountText}>
+                  {parseFloat(estimatedDistance) == 0 ? ('Rs. 0')
+                    : (parseFloat(estimatedDistance) > 0 && parseFloat(estimatedDistance) < 5) ? ('Rs. 100')
+                      : (parseFloat(estimatedDistance) > 5 && parseFloat(estimatedDistance) < 10) ? ('Rs 150')
+                        : (parseFloat(estimatedDistance) > 10 && parseFloat(estimatedDistance) < 20) ? ('Rs 250')
+                          : (parseFloat(estimatedDistance) > 20 && parseFloat(estimatedDistance) < 30) ? ('Rs 300')
+                            : (parseFloat(estimatedDistance) > 30 && parseFloat(estimatedDistance) < 40) ? ('Rs 350')
+                              : (parseFloat(estimatedDistance) > 40 && parseFloat(estimatedDistance) < 50) ? ('Rs 400')
+                                : (parseFloat(estimatedDistance) > 50 && parseFloat(estimatedDistance) < 100) ? ('Rs 500')
+                                  : ('Rs. 800')}
+                </Text>
+              </View>
+              <View>
+                <TouchableOpacity onPress={handleFindGiggers} style={styles.confirmButton}>
+                  <Text style={styles.confirmButtonText}>Find Giggers</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+        </ScrollView>
+      </SafeAreaView>
+    </RootSiblingParent>
   );
 };
 
@@ -316,6 +285,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 15,
     marginBottom: 20,
+    zIndex: -1
   },
   paymentSectionTitle: {
     fontSize: 20,

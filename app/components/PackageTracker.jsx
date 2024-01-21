@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import React from 'react';
 import { View, Text, StyleSheet, Button, TouchableOpacity } from 'react-native';
 
@@ -29,7 +30,7 @@ const PackageTracker = ({ trackingNumber, status, date, from, to, paymentMethod 
                     <Text style={styles.heading}>Payment</Text>
                     <Text style={styles.detail}>{paymentMethod}</Text>
                 </View>
-                <TouchableOpacity style={styles.seeAllButton} onPress={() => { }}>
+                <TouchableOpacity style={styles.seeAllButton} onPress={() => {router.push('/(aux)/tracking') }}>
                     <Text style={styles.seeAllButtonText}>See Full Details</Text>
                 </TouchableOpacity>
             </View>

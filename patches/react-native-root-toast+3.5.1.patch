@@ -1,0 +1,118 @@
+diff --git a/node_modules/react-native-root-toast/lib/ToastContainer.js b/node_modules/react-native-root-toast/lib/ToastContainer.js
+index 6c77e3e..0a3cfe4 100644
+--- a/node_modules/react-native-root-toast/lib/ToastContainer.js
++++ b/node_modules/react-native-root-toast/lib/ToastContainer.js
+@@ -12,7 +12,8 @@ import {
+     Easing,
+     Keyboard,
+     SafeAreaView,
+-    TouchableWithoutFeedback
++    TouchableWithoutFeedback,
++    Platform
+ } from 'react-native';
+ import { ViewPropTypes, TextPropTypes } from 'deprecated-react-native-prop-types';
+ const TOAST_MAX_WIDTH = 0.8;
+@@ -151,7 +152,7 @@ class ToastContainer extends Component {
+         this.dimensionListener?.remove();
+         this.keyboardListener?.remove();
+     };
+-
++    _platform = Platform.OS;
+     _animating = false;
+     _root = null;
+     _hideTimeout = null;
+@@ -176,16 +177,20 @@ class ToastContainer extends Component {
+         if (!this._animating) {
+             clearTimeout(this._hideTimeout);
+             this._animating = true;
+-            this._root.setNativeProps({
+-                pointerEvents: 'auto'
+-            });
++            if (this._platform !== 'web') {
++                this._root.setNativeProps({
++                    pointerEvents: 'auto'
++                });
++            } else {
++                this._root.style.pointerEvents = 'auto';
++            }
+             this.props.onShow && this.props.onShow(this.props.siblingManager);
+             Animated.timing(this.state.opacity, {
+                 toValue: this.props.opacity,
+                 duration: this.props.animation ? TOAST_ANIMATION_DURATION : 0,
+                 easing: Easing.out(Easing.ease),
+                 useNativeDriver: true
+-            }).start(({finished}) => {
++            }).start(({ finished }) => {
+                 if (finished) {
+                     this._animating = !finished;
+                     this.props.onShown && this.props.onShown(this.props.siblingManager);
+@@ -202,9 +207,13 @@ class ToastContainer extends Component {
+         clearTimeout(this._hideTimeout);
+         if (!this._animating) {
+             if (this._root) {
+-                this._root.setNativeProps({
+-                    pointerEvents: 'none'
+-                });
++                if (this._platform !== 'web') {
++                    this._root.setNativeProps({
++                        pointerEvents: 'auto'
++                    });
++                } else {
++                    this._root.style.pointerEvents = 'auto';
++                }
+             }
+ 
+             if (this.props.onHide) {
+@@ -216,7 +225,7 @@ class ToastContainer extends Component {
+                 duration: this.props.animation ? TOAST_ANIMATION_DURATION : 0,
+                 easing: Easing.in(Easing.ease),
+                 useNativeDriver: true
+-            }).start(({finished}) => {
++            }).start(({ finished }) => {
+                 if (finished) {
+                     this._animating = false;
+                     this.props.onHidden && this.props.onHidden(this.props.siblingManager);
+@@ -226,7 +235,7 @@ class ToastContainer extends Component {
+     };
+ 
+     render() {
+-        let {props} =  this;
++        let { props } = this;
+         const { windowWidth } = this.state;
+         let offset = props.position;
+ 
+@@ -252,8 +261,8 @@ class ToastContainer extends Component {
+         >
+             <Touchable
+                 onPress={() => {
+-                  typeof this.props.onPress === 'function' ? this.props.onPress() : null
+-                  this.props.hideOnPress ? this._hide() : null
++                    typeof this.props.onPress === 'function' ? this.props.onPress() : null
++                    this.props.hideOnPress ? this._hide() : null
+                 }}
+             >
+                 <Animated.View
+@@ -261,12 +270,12 @@ class ToastContainer extends Component {
+                         styles.containerStyle,
+                         { marginHorizontal: windowWidth * ((1 - TOAST_MAX_WIDTH) / 2) },
+                         props.containerStyle,
+-                        props.backgroundColor && {backgroundColor: props.backgroundColor},
++                        props.backgroundColor && { backgroundColor: props.backgroundColor },
+                         {
+                             opacity: this.state.opacity
+                         },
+                         props.shadow && styles.shadowStyle,
+-                        props.shadowColor && {shadowColor: props.shadowColor}
++                        props.shadowColor && { shadowColor: props.shadowColor }
+                     ]}
+                     pointerEvents="none"
+                     ref={ele => this._root = ele}
+@@ -274,7 +283,7 @@ class ToastContainer extends Component {
+                     <Text style={[
+                         styles.textStyle,
+                         props.textStyle,
+-                        props.textColor && {color: props.textColor}
++                        props.textColor && { color: props.textColor }
+                     ]}>
+                         {this.props.children}
+                     </Text>

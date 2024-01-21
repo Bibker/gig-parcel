@@ -3,30 +3,41 @@ import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Image, Saf
 import { Ionicons } from '@expo/vector-icons';
 import { images } from '../../../constants';
 import PackageTracker from '../../components/PackageTracker';
-import { Link } from 'expo-router';
+import { Link, router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { RootSiblingParent } from 'react-native-root-siblings';
+import showToast from '../../components/Toast';
 
 
 const HomeTab = () => {
+  
     const [trackingNumber, setTrackingNumber] = useState('');
+    const handleTracking =()=>{
+        if(!trackingNumber.trim())
+        {
+           showToast("Please enter valid Tracking Number", "failed")
+        }
+        else
+        router.push('/(aux)/tracking')
+    }
+    
 
-const clearLocalStorage = async()=> {
-    AsyncStorage.setItem('senderName', '');
-    AsyncStorage.setItem('senderAddress', '');
-    AsyncStorage.setItem('sendeerContact', '');
-    AsyncStorage.setItem('senderLat', '');
-    AsyncStorage.setItem('senderLng', '');    
-    AsyncStorage.setItem('receiverName', '');
-    AsyncStorage.setItem('receiverAddress', '');
-    AsyncStorage.setItem('receiverContact', '');
-    AsyncStorage.setItem('receiverLat', '');
-    AsyncStorage.setItem('receiverLng', '');
-}
+    const clearLocalStorage = async () => {
+        AsyncStorage.setItem('senderName', '');
+        AsyncStorage.setItem('senderAddress', '');
+        AsyncStorage.setItem('sendeerContact', '');
+        AsyncStorage.setItem('senderLat', '');
+        AsyncStorage.setItem('senderLng', '');
+        AsyncStorage.setItem('receiverName', '');
+        AsyncStorage.setItem('receiverAddress', '');
+        AsyncStorage.setItem('receiverContact', '');
+        AsyncStorage.setItem('receiverLat', '');
+        AsyncStorage.setItem('receiverLng', '');
+    }
     useEffect(() => {
-        clearLocalStorage();
 
     }, []);
-    
+
     const items = [
         {
             "trackingNumber": "56789",
@@ -41,64 +52,66 @@ const clearLocalStorage = async()=> {
 
 
     return (
-        <SafeAreaView>
-            <ScrollView showsVerticalScrollIndicator={false}>
-                <View style={styles.container}>
-                    {/* Header with updated sections */}
-                    <View style={styles.header}>
-                        <Text style={styles.welcomeText}>Welcome</Text>
-                        <Text style={styles.userText}>Bibek,</Text>
-                        <Text style={styles.trackingPrompt}>
-                            Enter your tracking number and see updates of your parcels
-                        </Text>
+        <RootSiblingParent>
+            <SafeAreaView>
+                <ScrollView showsVerticalScrollIndicator={false}>
+                    <View style={styles.container}>
+                        {/* Header with updated sections */}
+                        <View style={styles.header}>
+                            <Text style={styles.welcomeText}>Welcome</Text>
+                            <Text style={styles.userText}>Bibek,</Text>
+                            <Text style={styles.trackingPrompt}>
+                                Enter your tracking number and see updates of your parcels
+                            </Text>
 
-                        {/* Tracking input and button with Ionicons */}
-                        <View style={styles.trackingSection}>
-                            <TextInput
-                                style={styles.trackingInput}
-                                placeholder="Enter tracking number"
-                                onChangeText={setTrackingNumber}
-                                value={trackingNumber}
-                            />
-                            <Link style={styles.trackButton} href='/(aux)/tracking'>
-                                <Text style={styles.trackButtonText}><Ionicons name="chevron-forward-circle" size={25}></Ionicons></Text>
-                            </Link>
+                            {/* Tracking input and button with Ionicons */}
+                            <View style={styles.trackingSection}>
+                                <TextInput
+                                    style={styles.trackingInput}
+                                    placeholder="Enter tracking number"
+                                    onChangeText={setTrackingNumber}
+                                    value={trackingNumber}
+                                />
+                                <TouchableOpacity style={styles.trackButton} onPress={handleTracking}>
+                                    <Text style={styles.trackButtonText}><Ionicons name="chevron-forward-circle" size={25}></Ionicons></Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+
+                        {/* Shift now section (unchanged) */}
+                        <View style={styles.sendPackageSection}>
+                            <View style={styles.sendPackagePrompt}>
+                                <Text style={styles.sendPackageTitle}>Send Package anywhere</Text>
+                                <Text style={styles.sendPackageTitle}>with</Text>
+                                <Text style={styles.sendPackageTitleGig}>Gig Parcel</Text>
+                                <Link style={styles.sendPackageButton} href='/(tabs)/(home)/shipment' asChild>
+                                    <Text style={styles.sendPackageButtonText}>Place Order</Text>
+                                </Link>
+                            </View>
+                            <View style={styles.sendPackageImageSection}>
+                                <Image style={styles.sendPackageImage} source={images.LOGO} />
+                            </View>
+                        </View>
+
+                        {/* Recent History Section (unchanged) */}
+                        <View style={styles.recentHistorySection}>
+                            <Text style={styles.recentHistoryTitle}>Recent History</Text>
+                            {items.map((item) => (
+                                <PackageTracker
+                                    key={item.trackingNumber}
+                                    trackingNumber={item.trackingNumber}
+                                    status={item.status}
+                                    date={item.date}
+                                    from={item.from}
+                                    to={item.to}
+                                    paymentMethod={item.paymentMethod}
+                                />
+                            ))}
                         </View>
                     </View>
-
-                    {/* Shift now section (unchanged) */}
-                    <View style={styles.sendPackageSection}>
-                        <View style={styles.sendPackagePrompt}>
-                            <Text style={styles.sendPackageTitle}>Send Package anywhere</Text>
-                            <Text style={styles.sendPackageTitle}>with</Text>
-                            <Text style={styles.sendPackageTitleGig}>Gig Parcel</Text>
-                            <Link style={styles.sendPackageButton} href='/(tabs)/(home)/shipment' asChild>
-                                <Text style={styles.sendPackageButtonText}>Place Order</Text>
-                            </Link>
-                        </View>
-                        <View style={styles.sendPackageImageSection}>
-                            <Image style={styles.sendPackageImage} source={images.LOGO} />
-                        </View>
-                    </View>
-
-                    {/* Recent History Section (unchanged) */}
-                    <View style={styles.recentHistorySection}>
-                        <Text style={styles.recentHistoryTitle}>Recent History</Text>
-                        {items.map((item) => (
-                            <PackageTracker
-                                key={item.trackingNumber}
-                                trackingNumber={item.trackingNumber}
-                                status={item.status}
-                                date={item.date}
-                                from={item.from}
-                                to={item.to}
-                                paymentMethod={item.paymentMethod}
-                            />
-                        ))}
-                    </View>
-                </View>
-            </ScrollView>
-        </SafeAreaView>
+                </ScrollView>
+            </SafeAreaView>
+        </RootSiblingParent>
     );
 };
 
@@ -111,7 +124,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#234c75',
         padding: 10,
         borderRadius: 5,
-        marginTop:5,
+        marginTop: 5,
         marginBottom: 20,
     },
     welcomeText: {
@@ -149,11 +162,11 @@ const styles = StyleSheet.create({
     },
     trackButton: {
         backgroundColor: '#d6654f',
-        color: '#fff',
         fontWeight: "bold",
         padding: 3
     },
     trackButtonText: {
+        color: '#fff',
         paddingLeft: 5,
         paddingRight: 5
     },
