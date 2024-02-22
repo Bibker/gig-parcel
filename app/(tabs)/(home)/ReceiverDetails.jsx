@@ -4,6 +4,8 @@ import { TextInput } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import { router } from 'expo-router';
+import showToast from '../../components/Toast';
+import { RootSiblingParent } from 'react-native-root-siblings';
 import config from '../../../config';
 
 
@@ -16,74 +18,83 @@ const ReceiverDetails = () => {
 
   const handleDone = async () => {
     try {
-      await AsyncStorage.setItem('receiverName',  receiverName);
-      await AsyncStorage.setItem('receiverContact',  receiverContact);
-      await AsyncStorage.setItem('receiverAddress',  receiverAddress);
-      await AsyncStorage.setItem('receiverLat',  String(receiverLat));
-      await AsyncStorage.setItem('receiverLng',  String(receiverLng));
-      router.push('/(tabs)/(home)/shipment');
+      if (!receiverAddress || !receiverName || !receiverContact) {
+        showToast("Please enter all the Fields", "failed");
+        return;
+      }
+      await AsyncStorage.setItem('receiverName', receiverName);
+      await AsyncStorage.setItem('receiverContact', receiverContact);
+      await AsyncStorage.setItem('receiverAddress', receiverAddress);
+      await AsyncStorage.setItem('receiverLat', String(receiverLat));
+      await AsyncStorage.setItem('receiverLng', String(receiverLng));
+      router.replace('/(tabs)/(home)/shipment');
     } catch (error) {
       console.log(error);
     }
 
   }
   return (
-    <View style={styles.container}>
-      {/* Header with updated sections */}
-      <View style={styles.header}>
-        <Text style={styles.headerText}>Receiver Details</Text>
-        {/* Tracking input and button with Ionicons */}
-        <Text style={styles.inputHeader}>Dropoff location</Text>
-        <View style={styles.locationSection}> 
-          <GooglePlacesAutocomplete
+    <RootSiblingParent>
+      <View style={styles.container}>
+        {/* Header with updated sections */}
+        <View style={styles.header}>
+          <Text style={styles.headerText}>Receiver Details</Text>
+          {/* Tracking input and button with Ionicons */}
+          <Text style={styles.inputHeader}>Dropoff location</Text>
+          <View style={styles.locationSection}>
+            <GooglePlacesAutocomplete
               onPress={(data, details = null) => {
                 setReceiverAddress(data.description);
                 const lat = details.geometry.location.lat;
                 const lng = details.geometry.location.lng;
                 setReceiverLat(lat);
                 setReceiverLng(lng);
-            }}
-            fetchDetails={true}
-            query={{
-              key: config.GOOGLE_MAP_API,
-              language: 'en',
-              components: 'country:np',
-            }}
-            requestUrl={{
-              useOnPlatform: 'web', // or "all"
-              url:
-                'https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api', // or any proxy server that hits https://maps.googleapis.com/maps/api
-            }}
-            styles={{
-              textInput: {
-                marginBottom:0,
-                height: 38,
-                backgroundColor:'#edf2f7'
-              },
-            }}
-          />
-        </View >
-        <Text style={styles.inputHeader}>Receiver Name</Text>
-        <View style={styles.locationSection} > 
-          <TextInput
-            onChangeText={setReceiverName}
-            style={styles.locationInput}
-          />
+              }}
+              fetchDetails={true}
+              query={{
+                key: config.GOOGLE_MAP_API,
+                language: 'en',
+                components: 'country:np',
+              }}
+              requestUrl={{
+                useOnPlatform: 'web', // or "all"
+                url:
+                  'https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api', // or any proxy server that hits https://maps.googleapis.com/maps/api
+              }}
+              textInputProps={{
+                autoFocus: true
+              }}
+              styles={{
+                textInput: {
+                  marginBottom: 0,
+                  height: 38,
+                  backgroundColor: '#edf2f7'
+                },
+              }}
+            />
+          </View >
+          <Text style={styles.inputHeader}>Receiver Name</Text>
+          <View style={styles.locationSection} >
+            <TextInput
+              onChangeText={setReceiverName}
+              style={styles.locationInput}
+            />
+          </View>
+          <Text style={styles.inputHeader}>Phone Number</Text>
+          <View style={styles.locationSection} >
+            <TextInput
+              onChangeText={setReceiverContact}
+              keyboardType='numeric'
+              style={styles.locationInput}
+              maxLength={10}
+            />
+          </View>
+          <TouchableOpacity style={styles.doneButton} onPress={handleDone}>
+            <Text style={styles.doneButtonText}>Done</Text>
+          </TouchableOpacity>
         </View>
-        <Text style={styles.inputHeader}>Phone Number</Text>
-        <View style={styles.locationSection} > 
-          <TextInput
-            onChangeText={setReceiverContact}
-            keyboardType='numeric'
-            style={styles.locationInput}
-            maxLength={10}
-          />
-        </View>
-        <TouchableOpacity style={styles.doneButton} onPress={handleDone}>
-          <Text style={styles.doneButtonText}>Done</Text>
-        </TouchableOpacity>
       </View>
-    </View>
+    </RootSiblingParent>
   )
 }
 
@@ -100,15 +111,15 @@ const styles = StyleSheet.create({
   },
   headerText: {
     color: "#d6654f",
-    alignSelf:'center',
+    alignSelf: 'center',
     fontSize: 24,
     fontWeight: 'medium',
     marginBottom: 20,
   },
-  inputHeader:{
-    fontSize:18,
-    marginBottom:4,
-    color:"#fff"
+  inputHeader: {
+    fontSize: 18,
+    marginBottom: 4,
+    color: "#fff"
 
   },
   locationSection: {

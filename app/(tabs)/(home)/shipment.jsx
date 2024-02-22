@@ -1,4 +1,4 @@
-const PLATFORM = config.PLATFORM;
+const PLATFORM = "cross";
 
 import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image, SafeAreaView, ScrollView, Alert } from 'react-native';
@@ -22,8 +22,6 @@ const Shipment = () => {
   const [estimatedDistance, setEstimatedDistance] = useState(0);
   const [estimatedTime, setEstimatedTime] = useState(0);
 
-
-
   useEffect(() => {
     if (senderLat && receiverLat)
       calculateMeasurements();
@@ -32,7 +30,6 @@ const Shipment = () => {
   useEffect(() => {
     fetchSenderReceiverDetails();
   }, [])
-
 
 
   const fetchSenderReceiverDetails = async () => {
@@ -77,22 +74,22 @@ const Shipment = () => {
   }
   const handleFindGiggers = () => {
     // console.warn(packageType, packageWeight, paymentMethod);
-    if (
-      // !senderAddress ||
-      // !receiverAddress ||
-      // !estimatedDistance ||
-      // !estimatedTime ||
-      // !senderLat ||
-      // !senderLng ||
-      // !receiverLat ||
-      // !receiverLng ||
-      !packageType ||
-      !packageWeight ||
-      !paymentMethod
-    ) {
-      showToast("Please enter all the Fields", "failed")
-      return;
-    }
+    // if (
+    //   // !estimatedDistance ||
+    //   // !estimatedTime ||
+    //   // !senderLat ||
+    //   // !senderLng ||
+    //   // !receiverLat ||
+    //   // !receiverLng ||
+    //   !senderAddress ||
+    //   !receiverAddress ||
+    //   !packageType ||
+    //   !packageWeight ||
+    //   !paymentMethod
+    // ) {
+    //   showToast("Please enter all the Fields", "failed")
+    //   return;
+    // }
     router.push('/(tabs)/(home)/GigMatch')
   };
   return (

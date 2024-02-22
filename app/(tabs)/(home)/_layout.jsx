@@ -15,16 +15,22 @@ const Layout = () => {
         name="shipment"
         options={{
           headerTitle: 'Shipment',
-          headerTintColor:'#d6654f',
-          headerTitleStyle:{
-              fontWeight:'bold',
-              fontSize:20,
-              
+          headerTintColor: '#d6654f',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+            fontSize: 20,
+
           },
-          headerTitleAlign:'center',
+          headerTitleAlign: 'center',
           headerStyle: {
-            backgroundColor: '#234c75', 
+            backgroundColor: '#234c75',
           },
+          headerLeft: () => (
+            <Button
+              onPress={() => { router.push('/(tabs)/(home)/home') }}
+              color='#d6654f'
+              title="Back" />
+          ),
         }}
       />
       <Stack.Screen name="SenderDetails" options={{
@@ -41,7 +47,7 @@ const Layout = () => {
           backgroundColor: '#234c75'
         },
       }} />
-       <Stack.Screen name="GigMatch" options={{
+      <Stack.Screen name="GigMatch" options={{
         presentation: 'modal',
         headerTitle: '',
         headerStyle: {

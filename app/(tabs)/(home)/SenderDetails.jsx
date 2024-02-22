@@ -4,6 +4,8 @@ import { TextInput } from 'react-native';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
+import showToast from '../../components/Toast';
+import { RootSiblingParent } from 'react-native-root-siblings';
 import config from '../../../config';
 
 const SenderDetails = () => {
@@ -16,74 +18,84 @@ const SenderDetails = () => {
 
   const handleNext = async () => {
     try {
-      await AsyncStorage.setItem('senderName',  senderName);
-      await AsyncStorage.setItem('senderContact',  senderContact);
-      await AsyncStorage.setItem('senderAddress',  senderAddress);
-      await AsyncStorage.setItem('senderLat',  String(senderLat));
-      await AsyncStorage.setItem('senderLng',  String(senderLng));
+      if (!senderAddress || !senderName || !senderContact) {
+        showToast("Please enter all the Fields", "failed");
+        return;
+      }
+      await AsyncStorage.setItem('senderName', senderName);
+      await AsyncStorage.setItem('senderContact', senderContact);
+      await AsyncStorage.setItem('senderAddress', senderAddress);
+      await AsyncStorage.setItem('senderLat', String(senderLat));
+      await AsyncStorage.setItem('senderLng', String(senderLng));
       router.replace('/(tabs)/(home)/ReceiverDetails');
     } catch (error) {
       console.log(error);
     }
 
   }
+
   return (
-    <View style={styles.container}>
-      {/* Header with updated sections */}
-      <View style={styles.header}>
-        <Text style={styles.headerText}>Sender Details</Text>
-        {/* Tracking input and button with Ionicons */}
-        <Text style={styles.inputHeader}>Pickup location</Text>
-        <View style={styles.locationSection}>
-          <GooglePlacesAutocomplete
-            onPress={(data, details = null) => {
-              setSenderAddress(data.description);
-              const lat = details.geometry.location.lat;
-              const lng = details.geometry.location.lng;
-              setSenderLat(lat);
-              setSenderLng(lng);
-            }}
-            fetchDetails={true}
-            query={{
-              key: config.GOOGLE_MAP_API,
-              language: 'en',
-              components: 'country:np',
-            }}
-            requestUrl={{
-              useOnPlatform: 'web', // or "all"
-              url:
-                'https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api', // or any proxy server that hits https://maps.googleapis.com/maps/api
-            }}
-            styles={{
-              textInput: {
-                marginBottom: 0,
-                height: 38,
-                backgroundColor: '#edf2f7'
-              },
-            }}
-          />
-        </View >
-        <Text style={styles.inputHeader}>Sender Name</Text>
-        <View style={styles.locationSection} >
-          <TextInput
-            onChangeText={setSenderName}
-            style={styles.locationInput}
-          />
+    <RootSiblingParent>
+      <View style={styles.container}>
+        {/* Header with updated sections */}
+        <View style={styles.header}>
+          <Text style={styles.headerText}>Sender Details</Text>
+          {/* Tracking input and button with Ionicons */}
+          <Text style={styles.inputHeader}>Pickup location</Text>
+          <View style={styles.locationSection}>
+            <GooglePlacesAutocomplete
+              onPress={(data, details = null) => {
+                setSenderAddress(data.description);
+                const lat = details.geometry.location.lat;
+                const lng = details.geometry.location.lng;
+                setSenderLat(lat);
+                setSenderLng(lng);
+              }}
+              fetchDetails={true}
+              query={{
+                key: config.GOOGLE_MAP_API,
+                language: 'en',
+                components: 'country:np',
+              }}
+              requestUrl={{
+                useOnPlatform: 'web', // or "all"
+                url:
+                  'https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api', // or any proxy server that hits https://maps.googleapis.com/maps/api
+              }}
+              textInputProps={{
+                autoFocus: true
+              }}
+              styles={{
+                textInput: {
+                  marginBottom: 0,
+                  height: 38,
+                  backgroundColor: '#edf2f7'
+                },
+              }}
+            />
+          </View >
+          <Text style={styles.inputHeader}>Sender Name</Text>
+          <View style={styles.locationSection} >
+            <TextInput
+              onChangeText={setSenderName}
+              style={styles.locationInput}
+            />
+          </View>
+          <Text style={styles.inputHeader}>Phone Number</Text>
+          <View style={styles.locationSection} >
+            <TextInput
+              keyboardType='numeric'
+              onChangeText={setSenderContact}
+              style={styles.locationInput}
+              maxLength={10}
+            />
+          </View>
+          <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
+            <Text style={styles.nextButtonText}>Next</Text>
+          </TouchableOpacity>
         </View>
-        <Text style={styles.inputHeader}>Phone Number</Text>
-        <View style={styles.locationSection} >
-          <TextInput
-            keyboardType='numeric'
-            onChangeText={setSenderContact}
-            style={styles.locationInput}
-            maxLength={10}
-          />
-        </View>
-        <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
-          <Text style={styles.nextButtonText}>Next</Text>
-        </TouchableOpacity>
       </View>
-    </View>
+    </RootSiblingParent>
   )
 }
 

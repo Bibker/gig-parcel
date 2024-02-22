@@ -12,6 +12,7 @@ const ProfileTab = () => {
   const [address, setAddress] = useState('');
 
   const handleLogout = async () => {
+    router.replace('/(auth)/login');
     // await axios.get(`${config.BASE_URL}/`).then(({data})=> {
     // setMsg(data.msg)  
     // }).catch((error)=>{
@@ -31,7 +32,6 @@ const ProfileTab = () => {
 
   ]
   return (
-
     <ScrollView showsVerticalScrollIndicator={false} automaticallyAdjustKeyboardInsets={true}>
       <SafeAreaView>
         <View style={styles.container}>
@@ -69,7 +69,7 @@ const ProfileTab = () => {
             <TouchableOpacity style={styles.profileButton} onPress={() => { }}>
               <Text style={styles.profileText}>Update Details</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={{...styles.profileButton, backgroundColor:'#bd112e' } } onPress={() => { }}>
+            <TouchableOpacity style={{ ...styles.profileButton, backgroundColor: '#bd112e' }} onPress={() => { }}>
               <Text style={styles.profileText}>Delete Account</Text>
             </TouchableOpacity>
           </View>
@@ -129,21 +129,21 @@ const styles = StyleSheet.create({
     marginBottom: 15
   },
   profileButton: {
-    alignSelf:'center',
+    alignSelf: 'center',
     backgroundColor: '#234c75',
     padding: 10,
-    borderRadius:5,
-    width:250,
-    maxWidth:300,
-    margin:5
-},
-    profileText: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: '#edf2f7',
-        textAlign:'center'
+    borderRadius: 5,
+    width: 250,
+    maxWidth: 300,
+    margin: 5
+  },
+  profileText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#edf2f7',
+    textAlign: 'center'
 
-    }
+  }
 });
 
 export default ProfileTab;
